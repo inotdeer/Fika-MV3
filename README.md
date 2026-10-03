@@ -59,7 +59,9 @@ Features and Offering:
 - Four delightful themes, several font and three text size options
 - Auto-generated table of content
 
-![](images/ChromeWebStore.png)
+[Download Fika MV3 v0.9.14](https://github.com/inotdeer/Fika-MV3/releases/tag/v0.9.14)
+
+This unofficial version is not published in the Chrome Web Store.
 
 ## Videos in reading mode
 Custom animated openings and videos may be omitted. Use Watch video on original page when available; it opens another window and keeps Fika open. Version 0.9.14 packages the fixes from 0.9.10 with updated metadata and this documented reading-mode choice.
