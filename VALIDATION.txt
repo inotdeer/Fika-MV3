@@ -1,0 +1,8 @@
+PASS: All JSON parses; all JavaScript passes syntax checks.
+PASS: Manifest V3 keys and every declared script, style, icon, HTML reference and font exist.
+PASS: Precompiled templates render content layout, update logs, empty photo grid and color grid without eval.
+PASS: Worker events register at startup; async messages respond; defaults preserve whitelist; cache survives worker recreation.
+PASS: Icon and photo responses target sender tab; offline photo fetch falls back without blocking; unavailable OAuth responds.
+PASS: Installed Chrome headless DOM smoke test with mocked extension APIs: edge fixture passes code entity fidelity, syntax highlighting, horizontal scrolling, h2/h3/h4 indentation, photo captions/credits, inline SVG, tables and blockquotes.
+LIMIT: Actual Load unpacked, isolated-world CSP and extension worker integration remain unverified.
+PASS: Add Us On group and associated Google/information SVG icons are removed; prose mentioning the control remains; article photos, captions/credits and diagram SVG survive.

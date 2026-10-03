@@ -1,0 +1,8 @@
+{
+  "name": "fika-mv3",
+  "version": "0.9.4",
+  "private": true,
+  "scripts": {
+    "build": "node builder.js"
+  }
+}
