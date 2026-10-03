@@ -1,4 +1,4 @@
-Fika Manifest V3 personal build, version 0.9.4
+Fika Manifest V3 personal build, version 0.9.12
 
 INSTALL
 Extract the entire ZIP to a permanent folder. Open chrome://extensions, enable
@@ -53,3 +53,38 @@ mocked extension APIs; the exact live People DOM has not been tested.
 To update, replace your old extracted files with this folder and click Reload
 on the Fika card at chrome://extensions, or remove the old copy and Load unpacked
 the new Fika-MV3 folder containing manifest.json. Refresh your article tabs.
+
+VERSION 0.9.12 — EMPTY GRAPHIC SPACING FIX
+Drops hidden SVGs, icon SVGs inside controls, decorative SVGs, definition-only
+sprite sheets, and SVGs left empty after external references are removed.
+Static article diagrams with drawable shapes remain, along with images and
+captions. Licenses and credits from the previous package are included.
+
+VERSION 0.9.12 — AUTHOR ATTRIBUTION
+Author-marked names are preserved instead of filtered as clutter. Standalone
+comment-count controls (including duplicated counts) are removed; article prose
+about comments remains. Earlier spacing fixes and license notices are included.
+
+VERSION 0.9.12 — INTRODUCTION AND BYLINE SPACING
+Identical consecutive opening text blocks are collapsed to one. Article media, captions and later prose are preserved. Inline bylines retain a space after by.
+
+VERSION 0.9.12 — RESPONSIVE ARTICLE CLEANUP
+Repeated opening descriptions, bylines, dates and disclosures are collapsed across the lead photo. Standalone comment counts, follow prompts, newsletters and recommendation sections are removed. Author-link spacing is restored. Article photos, captions, comics, diagrams and body prose remain.
+
+VERSION 0.9.12 — RELATED LINKS AND FOOTER FOLLOW CONTROLS
+Standalone Related link boxes are excluded from the article and table of contents. Footer follow-author/topic IDs are removed while preserving bylines, photo credits and ordinary article lists.
+
+VERSION 0.9.12 — FEATURE ARTICLE CONTENT AND REOPENING
+Editorial Key Facts boxes, feature bylines, photographer attribution and final article credits are preserved. Decorative drop caps use one readable copy. Reader close state resets, and cached readers reopen even after availability checks; navigation rebuilds from the restored source page.
+
+VERSION 0.9.12 — FINAL READING-MODE PACKAGE
+Carries forward the validated text, attribution, Key Facts, credits, drop-cap and reopening fixes from 0.9.10. This release updates version metadata and documents the chosen reading-mode behavior; it introduces no additional extraction changes.
+
+VIDEOS AND ANIMATED FEATURES
+The reader simplifies custom animated openings and does not guarantee preservation of videos or interactive media. Close Fika to view those on the original page. Article text, photos, captions and useful diagrams are retained where supported.
+
+VALIDATION LIMITS
+Saved-page and fixture tests use Chrome headless with mocked extension APIs. Live Chrome extension installation, actual video playback and every website are not fully verified.
+
+VERSION 0.9.12 — ORIGINAL VIDEO LINK
+Articles with detected native videos or YouTube/Vimeo embeds show a Watch video on original page link. A normal click opens the original article in a separate browser window and leaves Fika open at the current reading position. The browser controls whether a separate window or tab is used. Start playback with the original page's player. Custom players without discoverable video/iframe elements may not be detected. All previous text/content fixes remain.

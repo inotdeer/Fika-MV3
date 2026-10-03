@@ -18,3 +18,19 @@
 #fika-reader .fika-content pre code{white-space:pre;overflow-wrap:normal;word-break:normal;}
 #fika-reader .fika-content table{display:block;max-width:100%;box-sizing:border-box;overflow-x:auto;}
 #fika-reader .fika-content svg{max-width:100%;height:auto;}
+
+.fika-content .fika-original-video { display: block; margin: 0 0 24px; font: 14px/1.5 Arial, sans-serif; text-decoration: underline; }
+
+/* Let the entire open article flow onto printed pages instead of clipping the viewport. */
+@media print {
+  html:has(#fika-reader:not([style*="display: none"])) { overflow: visible !important; height: auto !important; min-height: 0 !important; background: white !important; }
+  #fika-reader { position: static !important; width: auto !important; height: auto !important; max-height: none !important; overflow: visible !important; background: white !important; }
+  #fika-reader #fika, #fika-reader .fika-main-body, #fika-reader .fika-paper, #fika-reader .fika-article, #fika-reader .fika-content { display: block !important; position: static !important; height: auto !important; max-height: none !important; overflow: visible !important; width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; transform: none !important; box-shadow: none !important; background: white !important; }
+  #fika-reader .fika-tool, #fika-reader .fika-toc, #fika-reader .fika-toc-static, #fika-reader .fika-drawer, #fika-reader .fika-footer, #fika-reader .fika-feedback, #fika-reader .fika-footer-share, #fika-reader .fika-bg, #fika-reader .fika-bg-credit, #fika-reader .fika-toast, #fika-reader .fika-loading { display: none !important; }
+  #fika-reader .fika-article * { color: black !important; text-shadow: none !important; }
+  #fika-reader .fika-content p, #fika-reader .fika-content li { font-size: 12pt !important; orphans: 3; widows: 3; }
+  #fika-reader .fika-content h1, #fika-reader .fika-content h2, #fika-reader .fika-content h3 { break-after: avoid; }
+  #fika-reader .fika-content img, #fika-reader .fika-content svg { max-width: 100% !important; height: auto !important; break-inside: avoid; }
+  #fika-reader .fika-content table { display: table !important; overflow: visible !important; }
+  #fika-reader .fika-content pre { white-space: pre-wrap !important; overflow: visible !important; }
+}

@@ -1,0 +1,39 @@
+outputs\Fika-MV3\assets\fonts\Merriweather\Merriweather-Bold.ttf
+Copyright 2016 The Merriweather Project Authors (https://github.com/EbenSorkin/Merriweather), with Reserved Font Name "Merriweather".
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL
+http://scripts.sil.org/OFL
+
+outputs\Fika-MV3\assets\fonts\Merriweather\Merriweather-BoldItalic.ttf
+Copyright 2016 The Merriweather Project Authors (https://github.com/EbenSorkin/Merriweather), with Reserved Font Name "Merriweather".
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL
+http://scripts.sil.org/OFL
+
+outputs\Fika-MV3\assets\fonts\Merriweather\Merriweather-Italic.ttf
+Copyright 2016 The Merriweather Project Authors (https://github.com/EbenSorkin/Merriweather), with Reserved Font Name "Merriweather".
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL
+http://scripts.sil.org/OFL
+
+outputs\Fika-MV3\assets\fonts\Merriweather\Merriweather-Regular.ttf
+Copyright 2016 The Merriweather Project Authors (https://github.com/EbenSorkin/Merriweather), with Reserved Font Name "Merriweather".
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL
+http://scripts.sil.org/OFL
+
+outputs\Fika-MV3\assets\fonts\Open_Sans\OpenSans-Bold.ttf
+Digitized data copyright © 2010-2011, Google Corporation.
+Licensed under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0
+
+outputs\Fika-MV3\assets\fonts\Open_Sans\OpenSans-BoldItalic.ttf
+Digitized data copyright © 2010-2011, Google Corporation.
+Licensed under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0
+
+outputs\Fika-MV3\assets\fonts\Open_Sans\OpenSans-Italic.ttf
+Digitized data copyright © 2010-2011, Google Corporation.
+Licensed under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0
+
+outputs\Fika-MV3\assets\fonts\Open_Sans\OpenSans-Regular.ttf
+Digitized data copyright © 2010-2011, Google Corporation.
+Licensed under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0

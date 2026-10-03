@@ -3,6 +3,8 @@ PASS: Manifest V3 keys and every declared script, style, icon, HTML reference an
 PASS: Precompiled templates render content layout, update logs, empty photo grid and color grid without eval.
 PASS: Worker events register at startup; async messages respond; defaults preserve whitelist; cache survives worker recreation.
 PASS: Icon and photo responses target sender tab; offline photo fetch falls back without blocking; unavailable OAuth responds.
-PASS: Installed Chrome headless DOM smoke test with mocked extension APIs: edge fixture passes code entity fidelity, syntax highlighting, horizontal scrolling, h2/h3/h4 indentation, photo captions/credits, inline SVG, tables and blockquotes.
+LIMIT: No real Chrome extension installation or visual browser verification performed yet.
+PASS: Installed Chrome headless DOM smoke test with mocked extension APIs: original content scripts initialize, article reader opens with headings/content and closes with no page errors.
 LIMIT: Actual Load unpacked, isolated-world CSP and extension worker integration remain unverified.
-PASS: Add Us On group and associated Google/information SVG icons are removed; prose mentioning the control remains; article photos, captions/credits and diagram SVG survive.
+
+PASS 0.9.14: Credit separators survive filtering and PDF extraction. Active reader print background computes white. Rendered final PDF page shows spaced credits and no grey trailing block. Prior reopen/history/video-window tests pass with mocked extension APIs.

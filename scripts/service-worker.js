@@ -16,7 +16,7 @@ async function send(tabId,method,data) {
 }
 async function toggle(tab) {
     await send(tab?.id,'openReaderMode');
-    await chrome.storage.sync.set({version:'v0.9.4'});
+    await chrome.storage.sync.set({version:'v0.9.14'});
 }
 // Register every event synchronously on every worker start.
 chrome.action.onClicked.addListener(toggle);

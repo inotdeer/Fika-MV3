@@ -7,3 +7,6 @@
 /node_modules
 package-lock.json
 dist.zip
+# Archive outputs and OS temporary files
+*.zip
+Thumbs.db

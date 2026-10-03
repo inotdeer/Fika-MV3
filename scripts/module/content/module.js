@@ -375,8 +375,15 @@ App.module.extend('content', function() {
         // a whole article or a semantic figure as a subscription control.
         if (element.matches('article, main, body, html, figure, figcaption, pre, code, table')) return false;
         const marker = typeof element.className === 'string' ? element.className + ' ' + element.id : element.id;
+        if (/(?:newsletter|related[-_]stories|related[-_]articles)/i.test(marker)) return true;
+        if (element.matches('a[href], [role="button"]') && /^\d+$/.test(element.textContent.trim())
+            && (element.getAttribute('role') === 'button' || /comment/i.test(element.getAttribute('href') + ' ' + element.getAttribute('aria-label')))) return true;
         if (/(?:google[-_]news|google[-_]follow|preferred[-_]source)/i.test(marker)) return true;
         const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
+        if (text.length < 800 && /^Follow topics and authors from this story/i.test(text)
+            && !element.querySelector('figure, img, pre, table, p')) return true;
+        if (text.length <= 80 && /^\d*\s*comments?(?:\s*\(all new\))?$/i.test(text)
+            && !element.querySelector('figure, pre, table, h1, h2, h3, h4')) return true;
         if (text.length <= 100 && /^add us on(?:\s+google(?:\s+news)?)?$/i.test(text)
             && !element.querySelector('figure, figcaption, pre, table, h1, h2, h3, h4, p')) return true;
         if (element.matches('a[href]')) {
@@ -427,7 +434,8 @@ App.module.extend('content', function() {
             if (!nodeValue) {
                 return false;
             }
-            articleHtml.push(element.nodeValue);
+            // Inline author widgets often rely on CSS gaps instead of literal spaces.
+            articleHtml.push(/^by\s*$/i.test(element.nodeValue) ? element.nodeValue.trimEnd() + ' ' : element.nodeValue);
             return true;
         } else if (nodeName === 'CODE') {
             articleHtml.push('<code>' + element.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>');
@@ -450,6 +458,12 @@ App.module.extend('content', function() {
             articleHtml.push('<pre><code>' + extract('', element) + '</code></pre>');
             return true
         } else if (nodeName.toLowerCase() === 'svg') {
+            const inFigure = !!element.closest('figure');
+            if (element.hidden || element.getAttribute('display') === 'none'
+                || getComputedStyle(element).display === 'none') return false;
+            // UI icons and hidden sprite sheets are not article illustrations.
+            if (!inFigure && (element.getAttribute('aria-hidden') === 'true'
+                || element.closest('button, a, [role="button"]'))) return false;
             // Keep static article diagrams, excluding embedded active content.
             const graphic = element.cloneNode(true);
             graphic.querySelectorAll('script,foreignObject,iframe,object,embed,animate,animateMotion,animateTransform,set').forEach(node => node.remove());
@@ -458,6 +472,19 @@ App.module.extend('content', function() {
                     if (/^on/i.test(attr.name) || /^(href|xlink:href)$/i.test(attr.name) && !attr.value.startsWith('#')) node.removeAttribute(attr.name);
                 });
             });
+            // Removing external references can leave a sized but empty SVG.
+            // Definitions/symbols alone also render nothing and must not reserve space.
+            const paint = [...graphic.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon,text,image,use')]
+                .some(node => {
+                    if (node.closest('defs,symbol,clipPath,mask,pattern')) return false;
+                    if (node.tagName.toLowerCase() === 'use') {
+                        const href = node.getAttribute('href') || node.getAttribute('xlink:href');
+                        return href && href.startsWith('#') && [...graphic.querySelectorAll('[id]')].some(target => target.id === href.slice(1));
+                    }
+                    if (node.tagName.toLowerCase() === 'image') return !!(node.getAttribute('href') || node.getAttribute('xlink:href'));
+                    return true;
+                });
+            if (!paint) return false;
             articleHtml.push(graphic.outerHTML);
             return true;
         } else if (excludeTags.indexOf(nodeName) !== -1) {
@@ -481,6 +508,8 @@ App.module.extend('content', function() {
         } else {
             if (nodeName !== 'ARTICLE' && !element.closest('figure, figcaption, .thumb, .thumbcaption')) {
                 for (var i in excludeAttrName) {
+                    // Author names are article attribution, not clutter.
+                    if (excludeAttrName[i] === 'author') continue;
                     try {
                         if ((element.className && element.className.toLocaleLowerCase().indexOf(excludeAttrName[i]) !== -1
                             || element.id && element.id.toLocaleLowerCase().indexOf(excludeAttrName[i]) !== -1)
@@ -531,6 +560,87 @@ App.module.extend('content', function() {
         }
     };
 
+    this.prepareReaderSource = function(source) {
+        const copy = source.cloneNode(true);
+        const originals = source.querySelectorAll('*'), copies = copy.querySelectorAll('*');
+        originals.forEach((node, index) => {
+            if (node.hidden || getComputedStyle(node).display === 'none') copies[index].setAttribute('style', 'display:none');
+        });
+        // Keep one readable copy of decorative drop caps.
+        for (const visual of copy.querySelectorAll('span[aria-hidden="true"]')) {
+            const accessible = visual.nextElementSibling;
+            if (accessible && accessible.matches('.sr-only, .screen-reader-text, .visually-hidden')
+                && visual.textContent === accessible.textContent) {
+                visual.remove(); accessible.removeAttribute('style');
+            }
+        }
+        // Editorial fact boxes are article content, unlike navigation sidebars.
+        for (const facts of copy.querySelectorAll('aside[aria-label="Key Facts"]')) {
+            const section = document.createElement('section');
+            section.innerHTML = facts.innerHTML; facts.replaceWith(section);
+        }
+        // Remove complete recommendation/sidebar groups before their headings reach the ToC.
+        for (const heading of copy.querySelectorAll('h2, h3, h4')) {
+            const label = heading.textContent.trim();
+            const related = /^Related\s*\/?$/i.test(label);
+            if (!related && !/^(Most Popular|The Verge Daily|More in:)/i.test(label)) continue;
+            let group = heading.parentElement;
+            while (group && group !== copy && !group.matches('article, main, body')) {
+                if (group.textContent.length > 5000) break;
+                // A related-links box must not swallow adjacent article paragraphs or figures.
+                if (related && (group.querySelector('figure, img, svg, pre, table')
+                    || [...group.querySelectorAll('p')].some(node => node.textContent.trim().length > 120))) break;
+                if (group.querySelector('ol, ul, form') || group.querySelectorAll('a[href]').length >= 2) {
+                    group.remove(); break;
+                }
+                group = group.parentElement;
+            }
+        }
+        // Footer follow widgets may lose their prompt while retaining an author bullet.
+        // Target the publisher's footer IDs, keeping bylines, credits and ordinary lists.
+        for (const control of copy.querySelectorAll('[id*="follow-author-article_footer"], [id*="follow-topic-article_footer"]')) {
+            if (control.closest('figure, figcaption')) continue;
+            const item = control.closest('li');
+            if (item) {
+                const list = item.parentElement;
+                item.remove();
+                if (list && !list.textContent.trim() && !list.querySelector('img, svg')) list.remove();
+            } else control.remove();
+        }
+        // Restore separation when a linked author name relied on the site's CSS gap.
+        for (const name of copy.querySelectorAll('[class*="author"], [id*="author"], [class*="author"] a, [class*="author"] span, a[href*="/authors/"]')) {
+            const next = name.nextSibling;
+            if (next && next.nodeType === 3 && /^[A-Za-z0-9]/.test(next.nodeValue)
+                && /[A-Za-z0-9]$/.test(name.textContent)) next.nodeValue = ' ' + next.nodeValue;
+        }
+        // Custom feature layouts place attribution and credits outside the scored body.
+        const scope = source.closest('main') || source.parentElement;
+        const result = document.createElement('div');
+        if (scope) {
+            for (const note of scope.querySelectorAll('p')) {
+                if (note.closest('figure, figcaption, blockquote, aside, pre, table')) continue;
+                const text = note.textContent.replace(/\s+/g, ' ').trim();
+                if (text.length < 180 && /^(by|photos by)\s+/i.test(text)
+                    && note.querySelector('strong, a')) {
+                    result.append(note.cloneNode(true));
+                    for (const duplicate of copy.querySelectorAll('p')) {
+                        if (duplicate.textContent.replace(/\s+/g, ' ').trim() === text) duplicate.remove();
+                    }
+                }
+            }
+        }
+        result.append(copy);
+        if (scope) for (const credits of scope.querySelectorAll('section[aria-label="Credits"]')) {
+            if (!source.contains(credits)) result.append(credits.cloneNode(true));
+        }
+        for (const label of result.querySelectorAll('section[aria-label="Credits"] li span')) {
+            // Keep the separator in the label's text; standalone whitespace nodes
+            // are discarded by the article filter.
+            if (label.textContent.trim().endsWith(':') && label.nextSibling) label.textContent = label.textContent.trimEnd() + '\u00a0';
+        }
+        return result;
+    };
+
     this.readerMode = function() {
         //
         let articleHtml = [],
@@ -548,7 +658,7 @@ App.module.extend('content', function() {
         //}
 
         text = topElement.innerText;
-        this.filterElement(topElement, articleHtml);
+        this.filterElement(this.prepareReaderSource(topElement), articleHtml);
         //
         let title = articleTitle ? articleTitle : $('head title').text();
 
@@ -576,13 +686,59 @@ App.module.extend('content', function() {
         }, $('.fika-menu'));
         //
         this.extFilter();
+        this.addVideoLink();
         //
         this.module.reader._init(text, store, photoSrc);
+    };
+
+    this.addVideoLink = function() {
+        const candidates = document.querySelectorAll('main video, article video, main iframe[src], article iframe[src]');
+        const video = [...candidates].find(node => {
+            if (node.closest('#fika-reader, [class*="advert"], [id*="advert"], [class*="ad-slot"]')) return false;
+            if (node.tagName === 'VIDEO') return !!(node.currentSrc || node.getAttribute('src') || node.querySelector('source[src]') || node.getAttribute('poster'));
+            try {
+                const url = new URL(node.getAttribute('src'), location.href);
+                return /(^|\.)(youtube\.com|youtube-nocookie\.com|vimeo\.com)$/.test(url.hostname);
+            } catch (_) { return false; }
+        });
+        if (!video) return;
+        const content = document.querySelector('.fika-content');
+        if (!content) return;
+        const link = document.createElement('a');
+        link.className = 'fika-original-video';
+        link.href = location.href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Watch video on original page';
+        link.addEventListener('click', event => {
+            if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            window.open(link.href, '_blank', 'popup=yes,width=1100,height=800,noopener,noreferrer');
+        });
+        content.prepend(link);
     };
 
     this.extFilter = function() {
         //
         let parent = $('.fika-content');
+        // Responsive headers can repeat around the lead photo. Only deduplicate
+        // opening metadata; leave media, captions and body paragraphs untouched.
+        const blocks = [...parent[0].querySelectorAll('p, div, section, time')]
+            .filter(node => !node.querySelector('p, div, section, time, img, svg, figure, table, pre')
+                && !node.closest('figure, figcaption, blockquote, table, pre'));
+        const normalized = node => node.textContent.replace(/[\s\uFEFF]+/g, ' ').trim();
+        const lead = blocks.find(node => normalized(node).length >= 40);
+        const leadText = lead && normalized(lead);
+        const seen = new Set();
+        for (const node of blocks.slice(0, 30)) {
+            const value = normalized(node);
+            if (value.length > 450) break;
+            const metadata = value === leadText || /^(?:by|photos by)\s+\S/i.test(value)
+                || /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b.*\b20\d{2}\b/.test(value)
+                || /^If you buy something from a link,/i.test(value);
+            if (!metadata) continue;
+            if (seen.has(value)) node.remove(); else seen.add(value);
+        }
         // parent.find('noscript').each(function() {
         //     $(this).parent().html($(this).html().replace(/class="(.+?)"/g, '').replace(/style="(.+?)"/g, ''));
         // });
@@ -690,19 +846,17 @@ App.module.extend('content', function() {
     };
 
     this.openReaderMode = function() {
-		if (location.href !== pageUrl) {
-			this.findArticlePro();
-		}
-		if (!isAvailable) {
-		    return false;
-        }
-		//
         let target = $('#fika-reader');
-		if (target.length === 0) {
+        if (location.href !== pageUrl) {
+            // Restore the source page before rescoring a client-side navigation.
+            $('body').show(); $('html, body').css('overflow-y', 'auto');
+            target.remove(); target = $('#fika-reader'); isOpen = false;
+        }
+        if (target.length === 0) {
             this.findArticlePro();
+            if (!isAvailable) return false;
             this.readerMode();
             target = $('#fika-reader');
-            isOpen = true;
         }
         let display = target.css('display'),
             overflow = 'hidden';
@@ -752,6 +906,7 @@ App.module.extend('content', function() {
     let openedTimeStamp = 0
 
     this.closeReaderMode = function() {
+        isOpen = false;
         let target = $('#fika-reader');
         $('html, body').css('overflow-y', 'auto');
         $('body').show();

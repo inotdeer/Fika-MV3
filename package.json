@@ -1,8 +1,10 @@
 {
   "name": "fika-mv3",
-  "version": "0.9.4",
+  "version": "0.9.14",
   "private": true,
   "scripts": {
     "build": "node builder.js"
-  }
+  },
+  "license": "ISC",
+  "author": "onlyfu (original Fika) and contributors"
 }
